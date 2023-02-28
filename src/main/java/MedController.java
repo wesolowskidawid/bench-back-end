@@ -1,6 +1,8 @@
 import io.javalin.http.Context;
 import objects.Med;
+import utils.CalcUtil;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -17,5 +19,39 @@ public final class MedController {
 
     public static void getAllMeds(Context context) {
         context.json(meds);
+    }
+
+    public static void getMedByMedName(Context context) {
+        for(Med m : meds) {
+            if(m.getName().contains(context.pathParam("medName"))) {
+                context.json(m);
+                return;
+            }
+        }
+        context.result("Not found.");
+    }
+
+    public static void calculate(Context context) {
+        double weight = Double.parseDouble(context.pathParam("weight"));
+        Med med = meds.get(Integer.parseInt(context.pathParam("medId")));
+
+        double activeSubstance = CalcUtil.calculateActiveSubstance(weight, med.getDoseMg(), med.getDoseKg());
+        double medDose = CalcUtil.calculateDose(activeSubstance, med.getPowerMg(), med.getPowerMl());
+        String packageSize;
+        CalcUtil util = new CalcUtil();
+        if(med.getCapsuleSizeMl() == 0) {
+            packageSize = util.calculatePackageSizeNoCapsules(7, 2, medDose, med.getPackageSizeMl()).toString();
+        }
+        else {
+            packageSize = util.calculatePackageSizeCapsules(7, 2, medDose, med.getPackageSizeMl(), med.getCapsuleSizeMl()).toString();
+        }
+
+        List<String> result = new ArrayList<>();
+        result.add("Weight = " + weight);
+        result.add("Active Substance = " + activeSubstance);
+        result.add("Med dose = " + medDose);
+        result.add("Package size = " + packageSize);
+
+        context.json(result);
     }
 }

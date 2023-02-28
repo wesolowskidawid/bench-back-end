@@ -6,6 +6,8 @@ public class Main {
         Javalin app = Javalin.create().start(7070);
 
         app.get("/meds", MedController::getAllMeds);
+        app.get("/meds/{medName}", MedController::getMedByMedName);
+        app.post("/calc/{weight}/{medId}", MedController::calculate);
     }
 
 }
