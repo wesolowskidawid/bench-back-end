@@ -1,10 +1,11 @@
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.http.Context;
 import objects.Med;
 import utils.CalcUtil;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public final class MedController {
 
@@ -31,9 +32,12 @@ public final class MedController {
         context.result("Not found.");
     }
 
-    public static void calculate(Context context) {
-        double weight = Double.parseDouble(context.pathParam("weight"));
-        Med med = meds.get(Integer.parseInt(context.pathParam("medId")));
+    public static void calculate(Context context) throws JsonProcessingException {
+        String body = context.body();
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, Object> json = mapper.readValue(body, new TypeReference<Map<String,Object>>(){});
+        double weight = Double.parseDouble(json.get("weight").toString());
+        Med med = meds.get(Integer.parseInt(json.get("id").toString()));
 
         double activeSubstance = CalcUtil.calculateActiveSubstance(weight, med.getDoseMg(), med.getDoseKg());
         double medDose = CalcUtil.calculateDose(activeSubstance, med.getPowerMg(), med.getPowerMl());
@@ -46,12 +50,13 @@ public final class MedController {
             packageSize = util.calculatePackageSizeCapsules(7, 2, medDose, med.getPackageSizeMl(), med.getCapsuleSizeMl()).toString();
         }
 
-        List<String> result = new ArrayList<>();
-        result.add("Weight = " + weight);
-        result.add("Active Substance = " + activeSubstance);
-        result.add("Med dose = " + medDose);
-        result.add("Package size = " + packageSize);
+        Map<String, String> result = new HashMap<>();
+        result.put("weight", String.valueOf(weight));
+        result.put("activesubstance", String.valueOf(activeSubstance));
+        result.put("meddose", String.valueOf(medDose));
+        result.put("packagesize", packageSize);
 
-        context.json(result);
+
+        context.json(result).status(200);
     }
 }
