@@ -3,6 +3,7 @@ package objects;
 import java.util.List;
 
 public class Med {
+    private final int id;
     private final String name;
     private final double powerMg;
     private final double powerMl;
@@ -11,7 +12,8 @@ public class Med {
     private final double doseMg;
     private final double doseKg;
 
-    public Med(String name, double powerMg, double powerMl, List<Double> packageSizeMl, int capsuleSizeMl, double doseMg, double doseKg) {
+    public Med(int id, String name, double powerMg, double powerMl, List<Double> packageSizeMl, int capsuleSizeMl, double doseMg, double doseKg) {
+        this.id = id;
         this.name = name;
         this.powerMg = powerMg;
         this.powerMl = powerMl;
@@ -20,6 +22,8 @@ public class Med {
         this.doseMg = doseMg;
         this.doseKg = doseKg;
     }
+
+    public int getId() { return id; }
 
     public String getName() {
         return name;

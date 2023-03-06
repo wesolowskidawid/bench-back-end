@@ -13,9 +13,9 @@ public final class MedController {
 
     static final List<Med> meds =
             List.of(new Med[]{
-                    new Med("APAP", 40.0, 1.0, Arrays.asList(85.0, 150.0), 0, 15.0, 1.0),
-                    new Med("LEVOpront", 60.0, 10.0, List.of(120.0), 0, 1.5, 1.0),
-                    new Med("Pulmicort", 0.5, 1.0, Arrays.asList(10.0, 20.0), 2, 0.25, 5.0)
+                    new Med(0, "APAP", 40.0, 1.0, Arrays.asList(85.0, 150.0), 0, 15.0, 1.0),
+                    new Med(1, "LEVOpront", 60.0, 10.0, List.of(120.0), 0, 1.5, 1.0),
+                    new Med(2, "Pulmicort", 0.5, 1.0, Arrays.asList(10.0, 20.0), 2, 0.25, 5.0)
             });
 
     public static void getAllMeds(Context context) {
@@ -37,7 +37,7 @@ public final class MedController {
         ObjectMapper mapper = new ObjectMapper();
         Map<String, Object> json = mapper.readValue(body, new TypeReference<Map<String,Object>>(){});
         double weight = Double.parseDouble(json.get("weight").toString());
-        Med med = meds.get(Integer.parseInt(json.get("id").toString()));
+        Med med = getMedById(Integer.parseInt(json.get("id").toString()));
 
         double activeSubstance = CalcUtil.calculateActiveSubstance(weight, med.getDoseMg(), med.getDoseKg());
         double medDose = CalcUtil.calculateDose(activeSubstance, med.getPowerMg(), med.getPowerMl());
@@ -58,5 +58,14 @@ public final class MedController {
 
 
         context.json(result).status(200);
+    }
+
+    private static Med getMedById(int id) {
+        for(Med m : meds) {
+            if(m.getId() == id) {
+                return m;
+            }
+        }
+        return meds.get(0);
     }
 }
